@@ -1,0 +1,9 @@
+<?php
+/**
+* @file
+* Lets users manage student records in the system.
+*
+* Adds student type in the database
+* and gives different privileges to users to add/edit/delete
+*/
+

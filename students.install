@@ -1,0 +1,86 @@
+<?php
+/**
+* Implements hook_install()
+*/
+function students_install() {
+
+	// Create new user roles but check if they exist
+	$newRoles = array('teacher assistant', 'teacher', 'principal');
+	$roles = user_roles();
+	foreach ($newRoles as $r){
+
+		if (!in_array($r, $roles)){
+		  $addRole->name = $r;
+		  user_role_save($addRole);
+		}
+
+	}
+
+	// Grant permissions to the different roles
+	$role = user_role_load_by_name('teacher assistant');
+	user_role_grant_permissions($role->rid, array('access students content'));
+	unset( $role );
+	$role = user_role_load_by_name('teacher');
+	user_role_grant_permissions($role->rid, array('edit students content'));
+	unset( $role );
+	$role = user_role_load_by_name('principal');
+	user_role_grant_permissions($role->rid, array('delete students content'));
+	unset( $role );
+
+}
+
+/**
+* Implements hook_uninstall()
+*/
+function students_uninstall() {
+
+	// Delete user roles (if they exist)
+	$rolesToDelete = array('teacher assistant', 'teacher', 'principal');
+	$roles = user_roles();
+	foreach ($rolesToDelete as $r){
+
+		if (in_array($r, $roles)){
+		  	user_role_delete($r);
+		}
+
+	}
+
+}
+
+// Implements hook_schema
+function students_schema() {
+
+	// Here we need to create a schema to save students with the following data: name and gender
+	$schema['student'] = array(
+
+    // Specification for table "student".
+    'description' => 'The table for students.',
+    'fields' => array(
+		'nid' => array(
+			'description' => 'The primary identifier for a student.',
+			'type' => 'serial',
+			'unsigned' => TRUE,
+			'not null' => TRUE,
+		),
+		'name' => array(
+			'description' => 'The name of the student.',
+			'type' => 'varchar',
+			'length' => 255,
+			'not null' => TRUE,
+			'default' => '',
+		),
+		'gender' => array(
+			'description' => 'The gender of the student.',
+			'type' => 'varchar',
+			'length' => 1,
+			'not null' => TRUE,
+			'default' => '',
+		)
+    ),
+    'primary key' => array('nid'),
+
+  );
+
+  return $schema;
+
+}

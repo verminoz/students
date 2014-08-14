@@ -1,10 +1,11 @@
 <?php
+
 /**
-* Implements hook_install()
-*/
+ * Implements hook_install()
+ */
 function students_install() {
 
-	// Create new user roles but check if they exist
+	// Create new user roles but check if they exist first
 	$newRoles = array('teacher assistant', 'teacher', 'principal');
 	$roles = user_roles();
 	foreach ($newRoles as $r){
@@ -17,12 +18,17 @@ function students_install() {
 	}
 
 	// Grant permissions to the different roles
+	// Teacher assistant can only access students
 	$role = user_role_load_by_name('teacher assistant');
 	user_role_grant_permissions($role->rid, array('access students content'));
 	unset( $role );
+
+	// Teacher can also add/edit
 	$role = user_role_load_by_name('teacher');
 	user_role_grant_permissions($role->rid, array('edit students content'));
 	unset( $role );
+
+	// Principal can also delete
 	$role = user_role_load_by_name('principal');
 	user_role_grant_permissions($role->rid, array('delete students content'));
 	unset( $role );
@@ -30,8 +36,8 @@ function students_install() {
 }
 
 /**
-* Implements hook_uninstall()
-*/
+ * Implements hook_uninstall()
+ */
 function students_uninstall() {
 
 	// Delete user roles (if they exist)
@@ -47,7 +53,9 @@ function students_uninstall() {
 
 }
 
-// Implements hook_schema
+/**
+ * Implements hook_schema
+ */
 function students_schema() {
 
 	// Here we need to create a schema to save students with the following data: name and gender

@@ -1,23 +1,24 @@
 <?php
 
 /**
- * Implements hook_install()
+ * Implements hook_enable()
  */
-function students_install() {
+function students_enable() {
 
-	// Create new user roles but check if they exist first
+	/* Create new user roles but check if they exist first */
 	$newRoles = array('teacher assistant', 'teacher', 'principal');
 	$roles = user_roles();
 	foreach ($newRoles as $r){
 
 		if (!in_array($r, $roles)){
-		  $addRole->name = $r;
-		  user_role_save($addRole);
+			$addRole = new stdClass();
+			$addRole->name = $r;
+			user_role_save($addRole);
 		}
 
 	}
 
-	// Grant permissions to the different roles
+	/* Grant permissions to the different roles */
 	// Teacher assistant can only access students
 	$role = user_role_load_by_name('teacher assistant');
 	user_role_grant_permissions($role->rid, array('access students content'));
@@ -25,11 +26,14 @@ function students_install() {
 
 	// Teacher can also add/edit
 	$role = user_role_load_by_name('teacher');
+	user_role_grant_permissions($role->rid, array('access students content'));
 	user_role_grant_permissions($role->rid, array('edit students content'));
 	unset( $role );
 
 	// Principal can also delete
 	$role = user_role_load_by_name('principal');
+	user_role_grant_permissions($role->rid, array('access students content'));
+	user_role_grant_permissions($role->rid, array('edit students content'));
 	user_role_grant_permissions($role->rid, array('delete students content'));
 	unset( $role );
 
@@ -61,33 +65,33 @@ function students_schema() {
 	// Here we need to create a schema to save students with the following data: name and gender
 	$schema['student'] = array(
 
-    // Specification for table "student".
-    'description' => 'The table for students.',
-    'fields' => array(
-		'nid' => array(
-			'description' => 'The primary identifier for a student.',
-			'type' => 'serial',
-			'unsigned' => TRUE,
-			'not null' => TRUE,
-		),
-		'name' => array(
-			'description' => 'The name of the student.',
-			'type' => 'varchar',
-			'length' => 255,
-			'not null' => TRUE,
-			'default' => '',
-		),
-		'gender' => array(
-			'description' => 'The gender of the student.',
-			'type' => 'varchar',
-			'length' => 1,
-			'not null' => TRUE,
-			'default' => '',
-		)
-    ),
-    'primary key' => array('nid'),
+	    // Specification for table "student".
+	    'description' => 'The table for students.',
+	    'fields' => array(
+			'nid' => array(
+				'description' => 'The primary identifier for a student.',
+				'type' => 'serial',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+			),
+			'name' => array(
+				'description' => 'The name of the student.',
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'default' => '',
+			),
+			'gender' => array(
+				'description' => 'The gender of the student.',
+				'type' => 'varchar',
+				'length' => 1,
+				'not null' => TRUE,
+				'default' => '',
+			)
+	    ),
+	    'primary key' => array('nid'),
 
-  );
+	);
 
   return $schema;
 

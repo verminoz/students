@@ -7,3 +7,53 @@
 * and gives different privileges to users to add/edit/delete
 */
 
+/**
+* Implements hook_permission().
+*/
+function students_permission() {
+
+	// Create the new permissions to be assigned to user roles later
+    $items = array(
+
+  		'access students content' => array(
+  			'title' => 'Access students',
+		    'description' => 'Can only view students',
+		    ),
+  		'edit students content' => array(
+  			'title' => 'Edit students',
+		    'description' => 'Can view and edit students',
+		    ),
+  		'delete students content' => array(
+  			'title' => 'Delete students',
+		    'description' => 'Can view, edit and delete students',
+		    ),
+
+    );
+
+    return $items;
+}
+
+/**
+* Implements hook_menu().
+*/
+function students_menu() {
+	$items['students/custom'] = array(
+		'title' => 'Students',
+		'page callback' => 'students_page',
+		'access arguments' => array('access content'),
+	);
+
+  	return $items;
+}
+
+/**
+* Custom callback function for page.
+*/
+function students_page() {
+	$content['raw_markup'] = array(
+	    '#type' => 'markup',
+	    '#markup' => '<p>Student register</p>',
+	);
+
+	return $content;
+}

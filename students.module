@@ -7,7 +7,7 @@
 * and gives different privileges to users to add/edit/delete
 */
 
-drupal_add_css( drupal_get_path('module', 'custom') . '/css/custom.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE) );
+drupal_add_css( drupal_get_path('module', 'students') . '/students.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE) );
 
 /**
 * Implements hook_permission().
@@ -43,8 +43,14 @@ function students_menu() {
 	// Create a new menu entry for the Students page
 	$items['students/view'] = array(
 		'title' => 'Students',
-		'page callback' => 'students_view_page',
+		'page callback' => 'student_static',
 		'access arguments' => array('access students content'),
+	);
+
+	$items['students/delete/%'] = array(
+		'page callback' => 'delete_student',
+		'page argument' => array(2),
+		'access arguments' => array('delete students content'),
 	);
 
   	return $items;
@@ -53,55 +59,65 @@ function students_menu() {
 /**
 * Custom callback function for page.
 */
-function students_view_page() {
+function student_static() {
+    $build = array();
+    $build['content'] = array(
+        'add students form' => drupal_get_form('students_list_form'),
+    );
 
-	// Get user variable
-	global $user;
+	return $build;
+}
 
-	// Read parameters from address line and pass them to the select function
-	$filters = array();
- 	if ( isset($_GET['order']) && isset($_GET['sort']) ) {
- 		$filters['order'] = $_GET['order'];
- 		$filters['sort'] = $_GET['sort'];
- 	}
+/**
+ * Form content
+ */
+function students_list_form($form, &$form_state) {
 
  	// Fetch students
-	$students = load_students($filters);
+	$students = load_students();
 
 	// Create page
 	$content = array();
 
 	// Paragraph on top
-	$content[] = array(
+	$content['top'] = array(
 			    	'#type' => 'markup',
-			    	'#markup' => '<p>Here can the school staff access the students\' data</p>',
+			    	'#markup' => t('<p>Here can the school staff access the students\' data</p>'),
 		    	);
-
-	// Add button in case of teacher or principal
-	if ( in_array( 'teacher', $user->roles ) || in_array( 'principal', $user->roles ) ) {
-		$content[] = array(
-			    	'#type' => 'markup',
-			    	'#markup' => '<div class="add-button">Add student</div>',
-		    	);
-	}
 
 	// Table
-	$content[] = array(
+	$content['table'] = array(
 		    		'#theme' => 'table',
 		    		'#header' => array(
-		    							array( 'data' => 'NID', 'field' => 'nid', 'sort' => 'asc', ),
-		    							array( 'data' => 'Name', 'field' => 'name', ),
-		    							array( 'data' => 'Gender', 'field' => 'gender', )
+		    							array( 'data' => 'ID', ),
+		    							array( 'data' => 'Name', ),
+		    							array( 'data' => 'Gender', ),
+		    							(user_access('delete students content')) ? array( 'data' => 'Actions' ) : array(),
 		    						),
 		    		'#rows' => $students,
 	    		);
 
-	// Pager
-	$content[] = array(
-		    		'#theme' => 'pager',
-		    		'#tags' => array( 'First', 'Previous', 'Next', 'Last' ),
-		    		'#quantity' => 4,
-	    		);
+	// Add user form in case of teacher or principal
+	if ( user_access('edit students content') || user_access('delete students content') ) {
+		$content['name'] = array(
+			    	'#type' => 'textfield',
+			    	'#attributes' => array('class' => array( 'input-name' ) ),
+			    	'#title' => t('Name (first and last):'),
+			    	'#required' => true,
+		    	);
+		$content['gender'] = array(
+			    	'#type' => 'select',
+			    	'#attributes' => array('class' => array( 'select-gender' ) ),
+			    	'#title' => t('Gender:'),
+			    	'#value' => 'F',
+			    	'#options' => array('F', 'M'),
+			    	'#required' => true,
+		    	);
+		$content['submit'] = array(
+			    	'#type' => 'submit',
+			    	'#value' => t('Add student'),
+		    	);
+	}
 
 	return $content;
 }
@@ -109,29 +125,14 @@ function students_view_page() {
 /**
  * Loads students from the student table
  */
-function load_students($filters) {
-
-	// Get user variable
-	global $user;
-
-	// Check filters or leave default values
-	$order = 'name';
-	if (isset($filters['order'])) {
-		$order = $filters['order'];
-	}
-
-	$sort = 'asc';
-	if (isset($filters['sort'])) {
-		$sort = $filters['sort'];
-	}
+function load_students() {
 
 	// Create SelectQuery object
 	$query = db_select('student', 's');
 
 	// Build query
 	$query->fields('s', array('nid', 'name', 'gender'))
-	    ->orderBy($order, $sort)
-	    ->range(0, 10);
+	    ->orderBy('name', 'asc');
 
 	// Execute query and process results
 	$result = $query->execute();
@@ -139,15 +140,9 @@ function load_students($filters) {
 	$records = array();
     while ($record = $result->fetchAssoc()) {
 
-    	// In case user is a teacher as the possibility to edit
-    	if ( in_array( 'teacher', $user->roles ) ) {
-    		$record['links'] = '<a href="">Edit</a>';
-    	}
-
-    	// In case user is the principal add the possibility to edit AND delete
-    	if ( in_array( 'principal', $user->roles ) ) {
-    		$record['links'] = '<a href="">Edit</a>';
-    		$record['links'] .= '<a href="">Delete</a>';
+    	// In case user is the principal add the possibility to delete
+    	if ( user_access('delete students content') ) {
+    		$record['links'] = '<a class="delete-button" href="">Delete</a>';
     	}
 
     	// Add record
@@ -155,5 +150,36 @@ function load_students($filters) {
     }
 
 	return $records;
+
+}
+
+/**
+ * Loads students from the student table
+ */
+function students_list_form_submit($form, &$form_state) {
+
+	// Build INSERT query
+	$query = db_insert('student')->fields( array('name', 'gender') )
+								->values( array( 'name' => $form_state['values']['name'], 'gender' => $form_state['values']['gender'] ) );
+
+	// Execute query
+	$query->execute();
+
+}
+
+/**
+ * Delete's a student from the student table
+ */
+function delete_student($id) {
+
+	// Build DELETE query
+	$query = db_delete('student')->condition(
+											array(
+												'nid' => $id,
+											)
+										);
+
+	// Execute query
+	$query->execute();
 
 }

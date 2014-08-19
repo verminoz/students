@@ -7,7 +7,7 @@ function students_enable() {
 
 	/* Create new user roles but check if they exist first */
 	$newRoles = array('teacher assistant', 'teacher', 'principal');
-	$roles = user_roles();
+	$roles = user_roles(); // Load existing user roles
 	foreach ($newRoles as $r){
 
 		if (!in_array($r, $roles)){
@@ -44,9 +44,9 @@ function students_enable() {
  */
 function students_uninstall() {
 
-	// Delete user roles (if they exist)
+	// Delete the user roles created by the module (if they still exist)
 	$rolesToDelete = array('teacher assistant', 'teacher', 'principal');
-	$roles = user_roles();
+	$roles = user_roles(); // Load existing user roles
 	foreach ($rolesToDelete as $r){
 
 		if (in_array($r, $roles)){
@@ -93,6 +93,6 @@ function students_schema() {
 
 	);
 
-  return $schema;
+  	return $schema;
 
 }

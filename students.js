@@ -1,6 +1,9 @@
 /**
- * AJAX script for students module
- */
+* @file
+* Contains AJAX functions.
+*
+* Contains the AJAX function used by the students module
+*/
 
 (function ($) {
 

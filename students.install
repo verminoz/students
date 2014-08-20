@@ -1,36 +1,43 @@
 <?php
+/**
+* @file
+* Installation functions for students module.
+*
+* These functions create the schema 'student'
+* and the different user roles, to which permission are granted
+*/
 
 /**
  * Implements hook_enable()
  */
 function students_enable() {
 
-	/* Create new user roles but check if they exist first */
-	$newRoles = array('teacher assistant', 'teacher', 'principal');
+/* Create new user roles but check if they exist first */
+	$new_roles = array('teacher assistant', 'teacher', 'principal');
 	$roles = user_roles(); // Load existing user roles
-	foreach ($newRoles as $r){
+	foreach ($new_roles as $r){
 
 		if (!in_array($r, $roles)){
-			$addRole = new stdClass();
-			$addRole->name = $r;
-			user_role_save($addRole);
+			$add_role = new stdClass();
+			$add_role->name = $r;
+			user_role_save($add_role);
 		}
 
 	}
 
-	/* Grant permissions to the different roles */
-	// Teacher assistant can only access students
+/* Grant permissions to the different roles */
+// Teacher assistant can only access students
 	$role = user_role_load_by_name('teacher assistant');
 	user_role_grant_permissions($role->rid, array('access students content'));
 	unset( $role );
 
-	// Teacher can also add
+// Teacher can also add
 	$role = user_role_load_by_name('teacher');
 	user_role_grant_permissions($role->rid, array('access students content'));
 	user_role_grant_permissions($role->rid, array('edit students content'));
 	unset( $role );
 
-	// Principal can also delete
+// Principal can also delete
 	$role = user_role_load_by_name('principal');
 	user_role_grant_permissions($role->rid, array('access students content'));
 	user_role_grant_permissions($role->rid, array('edit students content'));
@@ -44,10 +51,10 @@ function students_enable() {
  */
 function students_uninstall() {
 
-	// Delete the user roles created by the module (if they still exist)
-	$rolesToDelete = array('teacher assistant', 'teacher', 'principal');
+// Delete the user roles created by the module (if they still exist)
+	$roles_to_delete = array('teacher assistant', 'teacher', 'principal');
 	$roles = user_roles(); // Load existing user roles
-	foreach ($rolesToDelete as $r){
+	foreach ($roles_to_delete as $r){
 
 		if (in_array($r, $roles)){
 		  	user_role_delete($r);
@@ -62,7 +69,7 @@ function students_uninstall() {
  */
 function students_schema() {
 
-	// Here we need to create a schema to save students with the following data: name and gender
+// Here we need to create a schema to save students with the following data: name and gender
 	$schema['student'] = array(
 
 	    // Specification for table "student".

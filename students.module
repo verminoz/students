@@ -15,25 +15,25 @@ drupal_add_css( drupal_get_path('module', 'students') . '/students.css', array('
 */
 function students_permission() {
 
-	// Create the new permissions to be assigned to user roles
-    $items = array(
+// Create the new permissions to be assigned to user roles
+  $items = array(
 
-  		'access students content' => array(
-  			'title' => t('Access students'),
-		    'description' => t('Can only view students'),
-		    ),
-  		'edit students content' => array(
-  			'title' => t('Edit students'),
-		    'description' => t('Can view and edit students'),
-		    ),
-  		'delete students content' => array(
-  			'title' => t('Delete students'),
-		    'description' => t('Can view, edit and delete students'),
-		    ),
+	  'access students content' => array(
+  		'title' => t('Access students'),
+      'description' => t('Can only view students'),
+    ),
+	  'edit students content' => array(
+  		'title' => t('Edit students'),
+      'description' => t('Can view and edit students'),
+    ),
+	  'delete students content' => array(
+  		'title' => t('Delete students'),
+      'description' => t('Can view, edit and delete students'),
+    ),
 
-    );
+  );
 
-    return $items;
+  return $items;
 }
 
 /**
@@ -41,14 +41,14 @@ function students_permission() {
 */
 function students_menu() {
 
-	// Create a new menu entry for the Students page
+// Create a new menu entry for the Students page
 	$items['students/view'] = array(
 		'title' => t('Students'),
 		'page callback' => 'student_static',
 		'access arguments' => array('access students content'),
 	);
 
-	// Create a delete URL for AJAX
+// Create a delete URL for AJAX
 	$items['students/delete/%'] = array(
 		'page callback' => 'delete_student',
 		'page arguments' => array(2),
@@ -78,19 +78,19 @@ function student_static() {
  */
 function students_list_form($form, &$form_state) {
 
- 	// Fetch students
+// Fetch students
 	$students = load_students();
 
-	// Create page
+// Create page
 	$content = array();
 
-	// Paragraph on top
+// Paragraph on top
 	$content['top'] = array(
 			    	'#type' => 'markup',
 			    	'#markup' => t('<p>Here can the school staff access the students\' data</p>'),
 		    	);
 
-	// Table
+// Table
 	$content['table'] = array(
 		    		'#theme' => 'table',
 		    		'#header' => array(
@@ -101,7 +101,7 @@ function students_list_form($form, &$form_state) {
 		    		'#rows' => $students,
 	    		);
 
-	// Add user form in case of teacher or principal
+// Add user form in case of teacher or principal
 	if ( user_access('edit students content') || user_access('delete students content') ) {
 		$content['name'] = array(
 			    	'#type' => 'textfield',
@@ -131,14 +131,14 @@ function students_list_form($form, &$form_state) {
  */
 function load_students() {
 
-	// Create SelectQuery object
+// Create SelectQuery object
 	$query = db_select('student', 's');
 
-	// Build query
+// Build query
 	$query->fields('s', array('nid', 'name', 'gender'))
 	    ->orderBy('name', 'asc');
 
-	// Execute query and process results
+// Execute query and process results
 	$result = $query->execute();
 
 	$records = array();
@@ -149,10 +149,10 @@ function load_students() {
     		$record['links'] = '<a href="#" class="delete-button" id="' . $record['nid'] . '">Delete</a>';
     	}
 
-    	// Remove ID columns
+  	// Remove ID columns
     	unset( $record['nid'] );
 
-    	// Add record
+  	// Add record
         $records[] = array( 'data' => $record );
     }
 
@@ -165,11 +165,11 @@ function load_students() {
  */
 function students_list_form_submit($form, &$form_state) {
 
-	// Build INSERT query
+// Build INSERT query
 	$query = db_insert('student')->fields( array('name', 'gender') )
 								->values( array( 'name' => $form_state['values']['name'], 'gender' => $form_state['values']['gender'] ) );
 
-	// Execute query
+// Execute query
 	$query->execute();
 
 }
@@ -179,10 +179,10 @@ function students_list_form_submit($form, &$form_state) {
  */
 function delete_student($id) {
 
-	// Build DELETE query
+// Build DELETE query
 	$query = db_delete('student')->condition('nid', $id);
 
-	// Execute query
+// Execute query
 	$query->execute();
 
 }

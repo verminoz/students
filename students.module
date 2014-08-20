@@ -113,8 +113,8 @@ function students_list_form($form, &$form_state) {
 			    	'#type' => 'select',
 			    	'#attributes' => array('class' => array( 'select-gender' ) ),
 			    	'#title' => t('Gender:'),
-			    	'#value' => 'F',
-			    	'#options' => array('F', 'M'),
+			    	'#default_value' => 'F',
+			    	'#options' => array('F' => t('F'), 'M' => t('M')),
 			    	'#required' => true,
 		    	);
 		$content['submit'] = array(
@@ -164,7 +164,7 @@ function load_students() {
  * Loads students from the student table
  */
 function students_list_form_submit($form, &$form_state) {
-
+error_log(json_encode($form_state['values']));
 // Build INSERT query
 	$query = db_insert('student')->fields( array('name', 'gender') )
 								->values( array( 'name' => $form_state['values']['name'], 'gender' => $form_state['values']['gender'] ) );

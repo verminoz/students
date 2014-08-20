@@ -1,3 +1,7 @@
+/**
+ * AJAX script for students module
+ */
+
 (function ($) {
 
 Drupal.behaviors.deleteUser = {

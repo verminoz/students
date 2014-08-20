@@ -4,9 +4,10 @@
 * Lets users manage student records in the system.
 *
 * Adds student type in the database
-* and gives different privileges to users to add/edit/delete
+* and gives different privileges to users to view/add/delete
 */
 
+// Add custom CSS to this page
 drupal_add_css( drupal_get_path('module', 'students') . '/students.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE) );
 
 /**
@@ -93,7 +94,6 @@ function students_list_form($form, &$form_state) {
 	$content['table'] = array(
 		    		'#theme' => 'table',
 		    		'#header' => array(
-		    							array( 'data' => t('ID'), ),
 		    							array( 'data' => t('Name'), ),
 		    							array( 'data' => t('Gender'), ),
 		    							(user_access('delete students content')) ? array( 'data' => t('Actions') ) : array(),
@@ -148,6 +148,9 @@ function load_students() {
     	if ( user_access('delete students content') ) {
     		$record['links'] = '<a href="#" class="delete-button" id="' . $record['nid'] . '">Delete</a>';
     	}
+
+    	// Remove ID columns
+    	unset( $record['nid'] );
 
     	// Add record
         $records[] = array( 'data' => $record );

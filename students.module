@@ -18,16 +18,16 @@ function students_permission() {
     $items = array(
 
   		'access students content' => array(
-  			'title' => 'Access students',
-		    'description' => 'Can only view students',
+  			'title' => t('Access students'),
+		    'description' => t('Can only view students'),
 		    ),
   		'edit students content' => array(
-  			'title' => 'Edit students',
-		    'description' => 'Can view and edit students',
+  			'title' => t('Edit students'),
+		    'description' => t('Can view and edit students'),
 		    ),
   		'delete students content' => array(
-  			'title' => 'Delete students',
-		    'description' => 'Can view, edit and delete students',
+  			'title' => t('Delete students'),
+		    'description' => t('Can view, edit and delete students'),
 		    ),
 
     );
@@ -42,15 +42,17 @@ function students_menu() {
 
 	// Create a new menu entry for the Students page
 	$items['students/view'] = array(
-		'title' => 'Students',
+		'title' => t('Students'),
 		'page callback' => 'student_static',
 		'access arguments' => array('access students content'),
 	);
 
+	// Create a delete URL for AJAX
 	$items['students/delete/%'] = array(
 		'page callback' => 'delete_student',
-		'page argument' => array(2),
+		'page arguments' => array(2),
 		'access arguments' => array('delete students content'),
+		'type' => MENU_CALLBACK,
 	);
 
   	return $items;
@@ -60,6 +62,8 @@ function students_menu() {
 * Custom callback function for page.
 */
 function student_static() {
+
+	// Fetch form
     $build = array();
     $build['content'] = array(
         'add students form' => drupal_get_form('students_list_form'),
@@ -89,10 +93,10 @@ function students_list_form($form, &$form_state) {
 	$content['table'] = array(
 		    		'#theme' => 'table',
 		    		'#header' => array(
-		    							array( 'data' => 'ID', ),
-		    							array( 'data' => 'Name', ),
-		    							array( 'data' => 'Gender', ),
-		    							(user_access('delete students content')) ? array( 'data' => 'Actions' ) : array(),
+		    							array( 'data' => t('ID'), ),
+		    							array( 'data' => t('Name'), ),
+		    							array( 'data' => t('Gender'), ),
+		    							(user_access('delete students content')) ? array( 'data' => t('Actions') ) : array(),
 		    						),
 		    		'#rows' => $students,
 	    		);
@@ -101,7 +105,7 @@ function students_list_form($form, &$form_state) {
 	if ( user_access('edit students content') || user_access('delete students content') ) {
 		$content['name'] = array(
 			    	'#type' => 'textfield',
-			    	'#attributes' => array('class' => array( 'input-name' ) ),
+			    	'#attributes' => array('class' => array( 'input-name' ), 'placeholder' => t('Insert student\'s name...') ),
 			    	'#title' => t('Name (first and last):'),
 			    	'#required' => true,
 		    	);
@@ -142,7 +146,7 @@ function load_students() {
 
     	// In case user is the principal add the possibility to delete
     	if ( user_access('delete students content') ) {
-    		$record['links'] = '<a class="delete-button" href="">Delete</a>';
+    		$record['links'] = '<a href="#" class="delete-button" id="' . $record['nid'] . '">Delete</a>';
     	}
 
     	// Add record
@@ -168,16 +172,12 @@ function students_list_form_submit($form, &$form_state) {
 }
 
 /**
- * Delete's a student from the student table
+ * Deletes a student from the student table
  */
 function delete_student($id) {
 
 	// Build DELETE query
-	$query = db_delete('student')->condition(
-											array(
-												'nid' => $id,
-											)
-										);
+	$query = db_delete('student')->condition('nid', $id);
 
 	// Execute query
 	$query->execute();

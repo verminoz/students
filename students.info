@@ -5,3 +5,4 @@ version = 0.1
 core = 7.x
 files[] = students.module
 files[] = students.install
+scripts[] = students.js

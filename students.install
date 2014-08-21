@@ -12,37 +12,37 @@
  */
 function students_enable() {
 
-/* Create new user roles but check if they exist first */
-	$new_roles = array('teacher assistant', 'teacher', 'principal');
-	$roles = user_roles(); // Load existing user roles
-	foreach ($new_roles as $r){
+  /* Create new user roles but check if they exist first */
+  $new_roles = array('teacher assistant', 'teacher', 'principal');
+  $roles = user_roles(); // Load existing user roles
+  foreach ($new_roles as $r) {
 
-		if (!in_array($r, $roles)){
-			$add_role = new stdClass();
-			$add_role->name = $r;
-			user_role_save($add_role);
-		}
+    if (!in_array($r, $roles)) {
+      $add_role = new stdClass();
+      $add_role->name = $r;
+      user_role_save($add_role);
+    }
 
-	}
+  }
 
-/* Grant permissions to the different roles */
-// Teacher assistant can only access students
-	$role = user_role_load_by_name('teacher assistant');
-	user_role_grant_permissions($role->rid, array('access students content'));
-	unset( $role );
+  /* Grant permissions to the different roles */
+  // Teacher assistant can only access students
+  $role = user_role_load_by_name('teacher assistant');
+  user_role_grant_permissions($role->rid, array('access students content'));
+  unset( $role );
 
-// Teacher can also add
-	$role = user_role_load_by_name('teacher');
-	user_role_grant_permissions($role->rid, array('access students content'));
-	user_role_grant_permissions($role->rid, array('edit students content'));
-	unset( $role );
+  // Teacher can also add
+  $role = user_role_load_by_name('teacher');
+  user_role_grant_permissions($role->rid, array('access students content'));
+  user_role_grant_permissions($role->rid, array('edit students content'));
+  unset( $role );
 
-// Principal can also delete
-	$role = user_role_load_by_name('principal');
-	user_role_grant_permissions($role->rid, array('access students content'));
-	user_role_grant_permissions($role->rid, array('edit students content'));
-	user_role_grant_permissions($role->rid, array('delete students content'));
-	unset( $role );
+  // Principal can also delete
+  $role = user_role_load_by_name('principal');
+  user_role_grant_permissions($role->rid, array('access students content'));
+  user_role_grant_permissions($role->rid, array('edit students content'));
+  user_role_grant_permissions($role->rid, array('delete students content'));
+  unset( $role );
 
 }
 
@@ -51,16 +51,16 @@ function students_enable() {
  */
 function students_uninstall() {
 
-// Delete the user roles created by the module (if they still exist)
-	$roles_to_delete = array('teacher assistant', 'teacher', 'principal');
-	$roles = user_roles(); // Load existing user roles
-	foreach ($roles_to_delete as $r){
+  // Delete the user roles created by the module (if they still exist)
+  $roles_to_delete = array('teacher assistant', 'teacher', 'principal');
+  $roles = user_roles(); // Load existing user roles
+  foreach ($roles_to_delete as $r) {
 
-		if (in_array($r, $roles)){
-		  	user_role_delete($r);
-		}
+    if (in_array($r, $roles)) {
+      user_role_delete($r);
+    }
 
-	}
+ }
 
 }
 
@@ -69,37 +69,36 @@ function students_uninstall() {
  */
 function students_schema() {
 
-// Here we need to create a schema to save students with the following data: name and gender
-	$schema['student'] = array(
+  // Here we need to create a schema to save students with the following data: name and gender
+  $schema['student'] = array(
 
-	    // Specification for table "student".
-	    'description' => t('The table for students.'),
-	    'fields' => array(
-			'nid' => array(
-				'description' => t('The primary identifier for a student.'),
-				'type' => 'serial',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-			),
-			'name' => array(
-				'description' => t('The name of the student.'),
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
-			'gender' => array(
-				'description' => t('The gender of the student.'),
-				'type' => 'varchar',
-				'length' => 1,
-				'not null' => TRUE,
-				'default' => '',
-			)
-	    ),
-	    'primary key' => array('nid'),
+    // Specification for table "student".
+    'description' => t('The table for students.'),
+    'fields' => array(
+      'nid' => array(
+        'description' => t('The primary identifier for a student.'),
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => t('The name of the student.'),
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'gender' => array(
+        'description' => t('The gender of the student.'),
+        'type' => 'varchar',
+        'length' => 1,
+        'not null' => TRUE,
+        'default' => '',
+      )
+    ),
+    'primary key' => array('nid'),
+  );
 
-	);
-
-  	return $schema;
+  return $schema;
 
 }
